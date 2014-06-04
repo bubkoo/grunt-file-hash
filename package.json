@@ -1,42 +1,46 @@
 {
-  "name": "grunt-file-hash",
-  "description": "Create version mapping for your static files.",
-  "version": "0.6.0",
-  "homepage": "https://github.com/johnny/grunt-file-hash",
-  "author": {
-    "name": "bubkoo",
-    "email": "bubkoo@163.com",
-    "url": "http://bubkoo.com"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/johnny/grunt-file-hash.git"
-  },
-  "bugs": {
-    "url": "https://github.com/johnny/grunt-file-hash/issues"
-  },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://github.com/johnny/grunt-file-hash/blob/master/LICENSE-MIT"
-    }
-  ],
-  "engines": {
-    "node": ">= 0.8.0"
-  },
-  "scripts": {
-    "test": "grunt test"
-  },
-  "devDependencies": {
-    "grunt-contrib-jshint": "^0.9.2",
-    "grunt-contrib-clean": "^0.5.0",
-    "grunt-contrib-nodeunit": "^0.3.3",
-    "grunt": "~0.4.5"
-  },
-  "peerDependencies": {
-    "grunt": "~0.4.5"
-  },
-  "keywords": [
-    "gruntplugin"
-  ]
+    "name": "grunt-file-hash",
+    "description": "Create version mapping for your static files.",
+    "version": "0.6.0",
+    "homepage": "https://github.com/bubkoo/grunt-file-hash",
+    "author": {
+        "name": "bubkoo",
+        "email": "bubkoo@163.com",
+        "url": "http://bubkoo.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/bubkoo/grunt-file-hash.git"
+    },
+    "bugs": {
+        "url": "https://github.com/bubkoo/grunt-file-hash/issues"
+    },
+    "licenses": [
+        {
+            "type": "MIT",
+            "url": "https://github.com/bubkoo/grunt-file-hash/blob/master/LICENSE-MIT"
+        }
+    ],
+    "engines": {
+        "node": ">= 0.8.0"
+    },
+    "scripts": {
+        "test": "grunt test"
+    },
+    "devDependencies": {
+        "grunt-contrib-jshint": "^0.9.2",
+        "grunt-contrib-clean": "^0.5.0",
+        "grunt-contrib-nodeunit": "^0.3.3",
+        "grunt": "~0.4.5"
+    },
+    "peerDependencies": {
+        "grunt": "~0.4.5"
+    },
+    "keywords": [
+        "gruntplugin",
+        "hash",
+        "static",
+        "deploy",
+        "assets"
+    ]
 }

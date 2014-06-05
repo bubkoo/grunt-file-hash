@@ -16,12 +16,16 @@ module.exports = function (grunt) {
     var defaultOutput = '{{= dest}}/hash.json';
     var defaultEtag = '{{= size}}-{{= +mtime}}';
     var defaultRename = '{{= dirname}}/{{= basename}}.{{= hash}}{{= extname}}';
+    var defaultMappingKey = '{{= cwd}}/{{= basename}}{{= extname}}';
+    var defaultMappingValue = '{{= dest}}/{{= basename}}.{{= hash}}{{= extname}}';
 
     grunt.registerMultiTask('filehash', 'Create version mapping for your static files.', function () {
 
         // Merge task-specific and/or target-specific options with these defaults.
         var options = this.options({
-            output: defaultOutput,
+            mapping: defaultOutput,
+            mappingKey: defaultMappingKey,
+            mappingValue: defaultMappingValue,
             merge: false,
             encoding: null, // encoding of file contents
             etag: null,
@@ -41,7 +45,6 @@ module.exports = function (grunt) {
         var encoding = options.encoding;
         var renameFormat = ('string' === typeof options.rename ) ? options.rename : defaultRename;
         var done = this.async();
-
 
         // Iterate over all specified file groups.
         this.files.forEach(function (f) {
@@ -67,7 +70,7 @@ module.exports = function (grunt) {
             }
 
             if (dest && grunt.file.isFile(dest)) {
-                grunt.log.warn('Destination must be a directory.');
+                grunt.fail.fatal('Destination for target %s is not a directory', dest);
             }
 
             var mapping = {};
@@ -75,36 +78,41 @@ module.exports = function (grunt) {
             src.forEach(function (filePath) {
 
                 var realPath = getRealPath(filePath),
-                    d;
+                    hashed;
 
                 // firstly, go with etag.
                 if (options.etag) {
+
                     fs.stat(realPath, function (err, stats) {
                         if (err) {
                             grunt.log.error('Stats for "' + filePath + '" failed.');
                         }
                         var etag = (typeof options.etag === 'string') ? options.etag : defaultEtag;
                         templateOptions['data'] = stats;
-                        d = grunt.template.process(etag, templateOptions);
-                        stash(filePath, d);
+                        hashed = grunt.template.process(etag, templateOptions);
+                        flush(filePath, hashed);
                     });
+
                 } else {
+
                     var stream = fs.ReadStream(realPath);
-                    //var contents = grunt.file.read(r, { encoding: null });
                     var shasum = crypto.createHash(options.algorithm);
+
                     stream.on('data', function (data) {
                         if (encoding) {
                             data = data.toString(encoding);
                         }
                         shasum.update(data);
                     });
+
                     stream.on('end', function () {
                         if (options.salt) {
                             shasum.update(options.salt);
                         }
-                        d = shasum.digest('hex').slice(0, options.hashlen);
-                        stash(filePath, d);
+                        hashed = shasum.digest('hex').slice(0, options.hashlen);
+                        flush(filePath, hashed);
                     });
+
                 }
             });
 
@@ -114,14 +122,13 @@ module.exports = function (grunt) {
                 return cwd ? path.join(cwd, filePath) : filePath;
             }
 
-            function stash(filePath, d) {
-                mapping[filePath] = d;
+            function flush(filePath, hashed) {
 
                 grunt.verbose.writeln(
-                        (options.etag ? 'Etag' : 'Hash') + ' for ' + filePath + ': ' + d);
+                        (options.etag ? 'Etag' : 'Hash') + ' for ' + filePath + ': ' + hashed);
 
                 if (dest) {
-                    saveFile(filePath);
+                    saveFile(filePath, hashed);
                 }
 
                 if (Object.keys(mapping).length === src.length) {
@@ -129,9 +136,34 @@ module.exports = function (grunt) {
                 }
             }
 
-            function renameFile(filePath) {
-                if (renameFormat) {
-                    var hash = mapping[filePath];
+            function saveFile(filePath, hashed) {
+                var srcFile = getRealPath(filePath);
+                var distFile = path.join(dest, getFileName(renameFormat, filePath, hashed));
+                if (srcFile !== distFile) {
+                    if (distFile.indexOf(dest) === -1) {
+                        grunt.log.warn('Renamed target "' + distFile + '" is not in dest directory.');
+                    }
+                    grunt.file.copy(srcFile, distFile);
+                    grunt.log.writeln('✔ '.green + srcFile + ' => '.magenta + distFile);
+
+                    if (!options.keep) {
+                        grunt.verbose.writeln('Deleting source "' + srcFile + '"..');
+                        grunt.file.delete(srcFile);
+                    }
+                }
+
+                if (options.mapping) {
+
+                    var key = getFileName('string' === typeof options.mappingKey
+                        ? options.mappingKey : defaultMappingKey, filePath, hashed);
+
+                    mapping[ key ] = getFileName('string' === typeof options.mappingValue
+                        ? options.mappingValue : defaultMappingValue, filePath, hashed);
+                }
+            }
+
+            function getFileName(tpl, filePath, hash) {
+                if (tpl) {
                     var extname = path.extname(filePath);
                     templateOptions['data'] = {
                         dest: dest,
@@ -141,35 +173,27 @@ module.exports = function (grunt) {
                         dirname: path.dirname(filePath),
                         basename: path.basename(filePath, extname)
                     };
-                    filePath = grunt.template.process(renameFormat, templateOptions);
+                    filePath = grunt.template.process(tpl, templateOptions);
                 }
                 return filePath;
             }
 
-            function saveFile(filePath) {
-                var srcFile = getRealPath(filePath);
-                var distFile = path.join(dest, renameFile(filePath));
-                if (srcFile !== distFile) {
-                    if (distFile.indexOf(dest) === -1) {
-                        grunt.log.warn('Renamed target "' + distFile + '" is not in dest directory.');
-                    }
-                    grunt.file.copy(srcFile, distFile);
-                    grunt.log.oklns('"' + srcFile + '" => "' + distFile + '"');
-                    if (!options.keep) {
-                        grunt.verbose.writeln('Deleting source "' + srcFile + '"..');
-                        grunt.file.delete(srcFile);
-                    }
-                }
-            }
-
             function createMapping() {
-                grunt.log.oklns('All hashed.');
-                if (options.output) {
-                    templateOptions['data'] = { cwd: cwd || '', dest: dest };
 
-                    var jsonFile = typeof options.output === 'string' ? options.output : defaultOutput;
+                if (options.mapping) {
+
+                    grunt.log.writeln('  All hashed. Generating mapping file.'.grey);
+
+                    templateOptions['data'] = {
+                        cwd: cwd || '',
+                        dest: dest
+                    };
+
+                    var jsonFile = 'string' === typeof options.mapping ? options.mapping : defaultOutput;
                     jsonFile = grunt.template.process(jsonFile, templateOptions);
+
                     if (options.merge && grunt.file.exists(jsonFile)) {
+
                         var old = grunt.file.readJSON(jsonFile);
                         if (typeof old === 'object') {
                             for (var key in old) {
@@ -178,11 +202,18 @@ module.exports = function (grunt) {
                                 }
                             }
                         }
+
                     }
+
                     mapping = sortObject(mapping);
                     grunt.file.write(jsonFile, JSON.stringify(mapping, null, 2));
-                    grunt.log.oklns('Hashmap "' + jsonFile + '" saved.');
+                    grunt.log.writeln('✔ '.green + 'Mapping file: ' + jsonFile + ' saved.');
+
+                } else {
+                    grunt.log.writeln('  All hashed.'.grey);
                 }
+
+
                 done();
             }
 
@@ -206,6 +237,7 @@ module.exports = function (grunt) {
             }
 
         });
+
     });
 
 };

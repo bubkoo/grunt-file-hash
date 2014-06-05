@@ -17,21 +17,35 @@ Once the plugin has been installed, it may be enabled inside your Gruntfile with
 grunt.loadNpmTasks('grunt-file-hash');
 ```
 
-## The "file_hash" task
+## The "filehash" task
 
 ### Overview
-In your project's Gruntfile, add a section named `file_hash` to the data object passed into `grunt.initConfig()`.
+In your project's Gruntfile, add a section named `filehash` to the data object passed into `grunt.initConfig()`.
 
-```js
+```javascript
 grunt.initConfig({
-  file_hash: {
+  filehash: {
     options: {
-      // Task-specific options go here.
+      mapping: '#{= dest}/hash.json', // the mapping file path
+      etag: null,
+      algorithm: 'md5', // the algorithm to create the hash
+      rename: '#{= dirname}/#{= basename}_#{= hash}#{= extname}', // save the original file as what
+      keep: true, // should we keep the original file or not
+      merge: false, // merge hash results into existing `hash.json` file or override it.
+      hashlen: 10, // length for hashsum digest
     },
     your_target: {
       // Target-specific file lists and/or options go here.
-    },
-  },
+      options: {
+        output: 'static/versions.json',
+      },
+      files: {
+        cwd: 'static/dist',
+        src: ['js/**/*.js', 'css/**/*.css'],
+        dest: 'static/dist'
+      }
+    }
+  }
 });
 ```
 

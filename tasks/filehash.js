@@ -13,7 +13,7 @@ module.exports = function (grunt) {
     var crypto = require('crypto');
     var path = require('path');
     var fs = require('fs');
-    var defaultOutput = '{{= dest}}/hash.json';
+    var defaultOutput = '{{= dest}}/mapping.json';
     var defaultEtag = '{{= size}}-{{= +mtime}}';
     var defaultRename = '{{= dirname}}/{{= basename}}.{{= hash}}{{= extname}}';
     var defaultMappingKey = '{{= cwd}}/{{= basename}}{{= extname}}';

@@ -53,50 +53,145 @@ grunt.initConfig({
 
 ### Options
 
-#### options.separator
+#### options.mapping
 Type: `String`
-Default value: `',  '`
+Default value: `'{{= dest}}/mapping.json'`
 
-A string value that is used to do something with whatever.
+Where to save the hash mapping json file.
+Available variables are `dest`, `cwd`.
+You can always use `#{= grunt.config.get(...) }'` to access config data in your `Gruntfile`.
 
-#### options.punctuation
+Set to `null` will disable the output.
+
+#### options.mappingKey
 Type: `String`
-Default value: `'.'`
+Default value: `'{{= cwd}}/{{= basename}}{{= extname}}'`
 
-A string value that is used to do something else with whatever else.
+A string value that is used to define the json file's key.
 
-### Usage Examples
+#### options.mappingValue
+Type: `String`
+Default value: `'{{= dest}}/{{= basename}}.{{= hash}}{{= extname}}'`
 
-#### Default Options
-In this example, the default options are used to do something with whatever. So if the `testing` file has the content `Testing` and the `123` file had the content `1 2 3`, the generated result would be `Testing, 1 2 3.`
+A string value that is used to define the json file's value.
+
+With the default options, the output would be like this:
 
 ```js
-grunt.initConfig({
-  file_hash: {
-    options: {},
-    files: {
-      'dest/default_options': ['src/testing', 'src/123'],
-    },
-  },
-});
+{
+  "src/js/a.js": "dest/js/a.aaa93n3f2.js",
+  "src/css/foo.css": "dest/css/foo.maaof33mao.css"
+}
 ```
 
-#### Custom Options
-In this example, custom options are used to do something else with whatever else. So if the `testing` file has the content `Testing` and the `123` file had the content `1 2 3`, the generated result in this case would be `Testing: 1 2 3 !!!`
+#### options.etag <a id="option-etag"></a>
+Type: `String`
+Default value: `null`
+
+In spite of standard digest algorithms provided by the
+[crypto]('http://nodejs.org/api/crypto.html#crypto_crypto_createhash_algorithm') module,
+you can set a "etag" format to use as file version.
+
+Set `etag` to `true` will use the default format: `#{= size}-#{= +mtime}`.
+
+All values in a [fs.Stats](http://nodejs.org/api/fs.html#fs_class_fs_stats) result are available.
+
+#### options.algorithm
+Type: `String`
+Default value: `'md5'`
+
+The algorithm to generate hash digests. Depend on the version of OpenSSL on the platform.
+Examples are `'sha1'`, `'md5'`, `'sha256'`, etc.
+
+#### options.hashlen
+Type: `Number`
+Default value: `10`
+
+The length of a hash digest hex value.
+
+#### options.rename
+Type: `String`
+Default value: `'#{= dirname}/#{= basename}\_#{= hash}#{= extname}'`
+
+Rename files, to include a hash in it. This is often for safely bursting cache.
+Available variables are:
+
+  - **hash**      - The hash/etag value.
+  - **dest**      - The destination directory.
+  - **cwd**       - The `cwd` you setted for `files` prop section.
+  - **filepath**  - The path of the file.
+  - **basename**  - The basename of the file, with extension name excluded.
+  - **dirname**   - The directory name of the file.
+  - **extname**   - The extension name of the file.
+
+Examples:
+
+    "abc/defg/hijk.js" =>
+    {
+      filepath: "abc/defg/hijk.js",
+      basename: "hijk",
+      dirname: "abc/defg",
+      extname: "js"
+    }
+
+With the default rename format, the result will be something like `"abc/defg/hijk\_e8e7f9e4.js"`.
+
+Will raise a warning if the renamed target is not in dest directory.
+  
+#### options.keep
+Type: `String`
+Default value: `true`
+
+Whether to keep the original files after rename it.
+
+#### options.merge
+Type: `String`
+Default value: `false`
+
+This option is mainly for cases like this:
 
 ```js
 grunt.initConfig({
-  file_hash: {
+  hashmap: {
     options: {
-      separator: ': ',
-      punctuation: ' !!!',
+      output: 'static/hash.json',
+      merge: true,
     },
-    files: {
-      'dest/default_options': ['src/testing', 'src/123'],
+    js: {
+      cwd: 'static/dist',
+      src: 'js/**/*.js',
+      dest: 'static/dist'
+    },
+    css: {
+      cwd: 'static/dist',
+      src: 'css/**/*.css',
+      dest: 'static/dist'
     },
   },
-});
+  watch: {
+    js: {
+      files: ['static/js/**/*.js'],
+      tasks: ['hashmap:js']
+    }, 
+    css: {
+      files: ['static/css/**/*.css'],
+      tasks: ['hashmap:css']
+    }
+  },
+})
 ```
+
+filehash tasks for css and js are created seperately.
+So with the `grunt-contrib-watch` running, when you modify one single file,
+grunt won't need to run the whole hash mapping process for all files.
+
+Since all the hash results will be written to the same file, and the mapping file
+are automatically merged. It is safe to refer to `mapping.json` for all static files
+in your application's static url generator.
+
+The downside of this practice is that hashes for deleted files will never be removed,
+unless `mapping.json` is removed. But of course, you can always set up a `grunt clean` task. 
+
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).

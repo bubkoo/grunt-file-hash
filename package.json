@@ -1,7 +1,7 @@
 {
     "name": "grunt-file-hash",
     "description": "Create version mapping for your static files.",
-    "version": "0.6.0",
+    "version": "0.1.0",
     "homepage": "https://github.com/bubkoo/grunt-file-hash",
     "author": {
         "name": "bubkoo",

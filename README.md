@@ -26,18 +26,20 @@ In your project's Gruntfile, add a section named `filehash` to the data object p
 grunt.initConfig({
   filehash: {
     options: {
-      mapping: '#{= dest}/hash.json', // the mapping file path
+      mapping: '#{= dest}/hash.json',                      // the mapping file path
+      mappingKey: '{{= cwd}}/{{= basename}}{{= extname}}', // mapping key options
+      mappingValue: '{{= dest}}/{{= basename}}.{{= hash}}{{= extname}}', // mapping value options
       etag: null,
       algorithm: 'md5', // the algorithm to create the hash
       rename: '#{= dirname}/#{= basename}_#{= hash}#{= extname}', // save the original file as what
-      keep: true, // should we keep the original file or not
-      merge: false, // merge hash results into existing `hash.json` file or override it.
-      hashlen: 10, // length for hashsum digest
+      keep: true,      // should we keep the original file or not
+      merge: false,    // merge hash results into existing `hash.json` file or override it.
+      hashlen: 10,     // length for hashsum digest
     },
     your_target: {
       // Target-specific file lists and/or options go here.
       options: {
-        output: 'static/versions.json',
+        output: 'static/mapping.json',
       },
       files: {
         cwd: 'static/dist',

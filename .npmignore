@@ -2,5 +2,6 @@
 .npmignore
 .jshintrc
 .jshintignore
+Gruntfile.js
 npm-debug.log
 test

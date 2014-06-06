@@ -63,9 +63,10 @@ module.exports = function (grunt) {
                 }
             });
 
-            if (!src.length) {
-                grunt.log.writeln('No source file..');
-                done();
+            if (src.length===0) {
+                if (f.src.length < 1) {
+                    grunt.log.warn('No source file..');
+                }
                 return;
             }
 

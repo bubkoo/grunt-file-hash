@@ -174,7 +174,25 @@ module.exports = function (grunt) {
                         dirname: path.dirname(filePath),
                         basename: path.basename(filePath, extname)
                     };
+
                     filePath = grunt.template.process(tpl, templateOptions);
+                    filePath = path.normalize(filePath);
+
+                    var matchLength;
+                    filePath = filePath.replace(/^(\^*)/g, function (input, match) {
+                        if (match) {
+                            matchLength = match.length;
+                            return input.replace(match, '');
+                        }
+                    });
+
+                    if (matchLength) {
+                        var paths = filePath.split(path.sep);
+                        while (matchLength-- && paths.length) {
+                            paths.shift();
+                        }
+                        filePath = paths.join(path.sep);
+                    }
                 }
                 return filePath;
             }

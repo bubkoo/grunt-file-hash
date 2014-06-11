@@ -63,18 +63,21 @@ module.exports = function (grunt) {
                 }
             });
 
-            if (src.length===0) {
+            if (src.length === 0) {
                 if (f.src.length < 1) {
                     grunt.log.warn('No source file..');
+                    done();
+                    return;
                 }
-                return;
             }
+
 
             if (dest && grunt.file.isFile(dest)) {
                 grunt.fail.fatal('Destination for target %s is not a directory', dest);
             }
 
             var mapping = {};
+
 
             src.forEach(function (filePath) {
 
@@ -178,13 +181,16 @@ module.exports = function (grunt) {
                     filePath = grunt.template.process(tpl, templateOptions);
                     filePath = path.normalize(filePath);
 
-                    var matchLength;
+                    var matchLength = 0;
                     filePath = filePath.replace(/^(\^*)/g, function (input, match) {
                         if (match) {
                             matchLength = match.length;
                             return input.replace(match, '');
+                        } else {
+                            return input;
                         }
                     });
+
 
                     if (matchLength) {
                         var paths = filePath.split(path.sep);
@@ -193,6 +199,7 @@ module.exports = function (grunt) {
                         }
                         filePath = paths.join(path.sep);
                     }
+
                 }
                 return filePath;
             }
@@ -256,7 +263,6 @@ module.exports = function (grunt) {
             }
 
         });
-
     });
 
 };

@@ -34,12 +34,12 @@ grunt.initConfig({
       rename: '#{= dirname}/#{= basename}_#{= hash}#{= extname}', // save the original file as what
       keep: true,      // should we keep the original file or not
       merge: false,    // merge hash results into existing `hash.json` file or override it.
-      hashlen: 10,     // length for hashsum digest
+      hashlen: 10     // length for hashsum digest
     },
     your_target: {
       // Target-specific file lists and/or options go here.
       options: {
-        output: 'static/mapping.json',
+        output: 'static/mapping.json'
       },
       files: {
         cwd: 'static/dist',

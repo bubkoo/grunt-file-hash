@@ -36,7 +36,7 @@ grunt.initConfig({
       mappingValue: '{{= dest}}/{{= basename}}.{{= hash}}{{= extname}}', // mapping value options
       etag: null,
       algorithm: 'md5', // the algorithm to create the hash
-      rename: '#{= dirname}/#{= basename}_#{= hash}#{= extname}', // save the original file as what
+      rename: '#{= dirname}/#{= basename}.#{= hash}#{= extname}', // save the original file as what
       keep: true,      // should we keep the original file or not
       merge: false,    // merge hash results into existing `hash.json` file or override it.
       hashlen: 10     // length for hashsum digest
@@ -116,7 +116,7 @@ The length of a hash digest hex value.
 
 #### options.rename
 Type: `String`
-Default value: `'#{= dirname}/#{= basename}\_#{= hash}#{= extname}'`
+Default value: `'#{= dirname}/#{= basename}.#{= hash}#{= extname}'`
 
 Rename files, to include a hash in it. This is often for safely bursting cache.
 Available variables are:

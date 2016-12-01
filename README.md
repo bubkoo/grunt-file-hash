@@ -46,11 +46,11 @@ grunt.initConfig({
       options: {
         output: 'static/mapping.json'
       },
-      files: {
+      files: [{
         cwd: 'static/dist',
         src: ['js/**/*.js', 'css/**/*.css'],
         dest: 'static/dist'
-      }
+      }]
     }
   }
 });
@@ -162,16 +162,16 @@ grunt.initConfig({
       output: 'static/hash.json',
       merge: true,
     },
-    js: {
+    js: [{
       cwd: 'static/dist',
       src: 'js/**/*.js',
       dest: 'static/dist'
-    },
-    css: {
+    }],
+    css: [{
       cwd: 'static/dist',
       src: 'css/**/*.css',
       dest: 'static/dist'
-    },
+    }],
   },
   watch: {
     js: {

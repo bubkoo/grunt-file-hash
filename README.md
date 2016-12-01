@@ -44,7 +44,7 @@ grunt.initConfig({
     your_target: {
       // Target-specific file lists and/or options go here.
       options: {
-        output: 'static/mapping.json'
+        mapping: 'static/mapping.json'
       },
       files: {
         cwd: 'static/dist',
@@ -159,7 +159,7 @@ This option is mainly for cases like this:
 grunt.initConfig({
   hashmap: {
     options: {
-      output: 'static/hash.json',
+      mapping: 'static/hash.json',
       merge: true,
     },
     js: {

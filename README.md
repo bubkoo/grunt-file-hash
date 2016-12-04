@@ -31,12 +31,12 @@ In your project's Gruntfile, add a section named `filehash` to the data object p
 grunt.initConfig({
   filehash: {
     options: {
-      mapping: '#{= dest}/hash.json',                      // the mapping file path
+      mapping: '{{= dest}}/hash.json',                      // the mapping file path
       mappingKey: '{{= cwd}}/{{= basename}}{{= extname}}', // mapping key options
       mappingValue: '{{= dest}}/{{= basename}}.{{= hash}}{{= extname}}', // mapping value options
       etag: null,
       algorithm: 'md5', // the algorithm to create the hash
-      rename: '#{= dirname}/#{= basename}_#{= hash}#{= extname}', // save the original file as what
+      rename: '{{= dirname}}/{{= basename}}_{{= hash}}{{= extname}}', // save the original file as what
       keep: true,      // should we keep the original file or not
       merge: false,    // merge hash results into existing `hash.json` file or override it.
       hashlen: 10     // length for hashsum digest
@@ -64,7 +64,7 @@ Default value: `'{{= dest}}/mapping.json'`
 
 Where to save the hash mapping json file.
 Available variables are `dest`, `cwd`.
-You can always use `#{= grunt.config.get(...) }'` to access config data in your `Gruntfile`.
+You can always use `{{= grunt.config.get(...) }}'` to access config data in your `Gruntfile`.
 
 Set to `null` will disable the output.
 
@@ -97,7 +97,7 @@ In spite of standard digest algorithms provided by the
 [crypto]('http://nodejs.org/api/crypto.html#crypto_crypto_createhash_algorithm') module,
 you can set a "etag" format to use as file version.
 
-Set `etag` to `true` will use the default format: `#{= size}-#{= +mtime}`.
+Set `etag` to `true` will use the default format: `{{= size}}-{{= +mtime}}`.
 
 All values in a [fs.Stats](http://nodejs.org/api/fs.html#fs_class_fs_stats) result are available.
 
@@ -116,7 +116,7 @@ The length of a hash digest hex value.
 
 #### options.rename
 Type: `String`
-Default value: `'#{= dirname}/#{= basename}\_#{= hash}#{= extname}'`
+Default value: `'{{= dirname}}/{{= basename}}_{{= hash}}{{= extname}}'`
 
 Rename files, to include a hash in it. This is often for safely bursting cache.
 Available variables are:
